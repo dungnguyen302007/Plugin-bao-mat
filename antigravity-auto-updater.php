@@ -3,7 +3,7 @@
 Plugin Name: GreenCie - Bảo Mật
 Plugin URI: https://github.com/dungnguyen302007/Plugin-bao-mat
 Description: Giải pháp toàn diện tích hợp tự động cập nhật ngầm an toàn bằng chữ ký số OpenSSL và các mô-đun phòng thủ chủ động (Quét mã độc, chặn Admin lạ, Khóa cứng tự động mở/khóa hẹn giờ).
-Version: 1.0.6
+Version: 1.0.7
 Author: Antigravity
 Author URI: https://example.com/
 License: GPLv2 or later
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
  */
 class Antigravity_Auto_Updater_Plugin {
     
-    const VERSION = '1.0.6';
+    const VERSION = '1.0.7';
     private $plugin_slug;
     private $plugin_dir_name = 'antigravity-auto-updater';
     
@@ -594,10 +594,22 @@ class Antigravity_Auto_Updater_Plugin {
     public function clean_admin_notices() {
         ?>
         <style id="green-clean-notices">
-            /* Ẩn thông báo gợi ý cài đặt plugin của Theme (TGMPA) */
+            /* Ẩn TOÀN BỘ thông báo rác trên trang quản lý GreenCie Panel để giữ thiết kế sạch sẽ */
+            .toplevel_page_a3s-security .notice,
+            .toplevel_page_a3s-security .update-nag,
+            .toplevel_page_a3s-security .updated,
+            .toplevel_page_a3s-security .error,
+            .toplevel_page_a3s-security .tgmpa {
+                display: none !important;
+            }
+
+            /* Ẩn thông báo gợi ý cài đặt plugin của Theme (TGMPA) trên toàn bộ admin */
             .tgmpa,
             .tgmpa-notice,
+            .flatsome-tgmpa-notice,
             [class*="tgmpa"],
+            div.notice:has(a[href*="tgmpa"]),
+            div.notice:has(a[href*="install-plugins"]),
             /* Ẩn các thông báo của Rank Math */
             .rank-math-notice,
             [class*="rank-math-notice"],
