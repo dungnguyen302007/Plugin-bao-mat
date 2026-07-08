@@ -3,7 +3,7 @@
 Plugin Name: Antigravity Auto Updater & Security Suite
 Plugin URI: https://github.com/dungnguyen302007/Plugin-bao-mat
 Description: Giải pháp toàn diện tích hợp tự động cập nhật ngầm an toàn bằng chữ ký số OpenSSL và các mô-đun phòng thủ chủ động (Quét mã độc, chặn Admin lạ, Khóa cứng tự động mở/khóa hẹn giờ).
-Version: 1.0.2
+Version: 1.0.3
 Author: Antigravity
 Author URI: https://example.com/
 License: GPLv2 or later
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
  */
 class Antigravity_Auto_Updater_Plugin {
     
-    const VERSION = '1.0.2';
+    const VERSION = '1.0.3';
     private $plugin_slug;
     private $plugin_dir_name = 'antigravity-auto-updater';
     
@@ -45,7 +45,7 @@ class Antigravity_Auto_Updater_Plugin {
         add_filter('pre_set_site_transient_update_plugins', array($this, 'check_update'));
         add_filter('plugins_api', array($this, 'plugin_info_popup'), 20, 3);
         add_filter('auto_update_plugin', array($this, 'force_auto_update'), 10, 2);
-        add_filter('upgrader_pre_install', array($this, 'verify_package_signature'), 10, 2);
+        add_filter('upgrader_source_selection', array($this, 'verify_package_signature'), 10, 4);
         
         // ---------------- GIAI ĐOẠN 2: BẢO MẬT CHỦ ĐỘNG THỜI GIAN THỰC ----------------
         
@@ -157,17 +157,16 @@ class Antigravity_Auto_Updater_Plugin {
     /**
      * MODULE 1.4: Xác thực chữ ký số bằng OpenSSL trước khi cài đặt
      */
-    public function verify_package_signature($response, $hook_extra) {
+    public function verify_package_signature($source, $remote_source, $upgrader, $hook_extra) {
         if (empty($hook_extra['plugin']) || $hook_extra['plugin'] !== $this->plugin_slug) {
-            return $response;
+            return $source;
         }
 
-        $source_dir = $hook_extra['local_source'] ?? '';
-        if (empty($source_dir)) {
-            return new WP_Error('empty_source_directory', 'Không tìm thấy thư mục cài đặt tạm thời.');
+        if (empty($source) || is_wp_error($source)) {
+            return $source;
         }
 
-        $signature_file = trailingslashit($source_dir) . 'signature.json';
+        $signature_file = trailingslashit($source) . 'signature.json';
 
         if (!file_exists($signature_file)) {
             return new WP_Error('missing_signature_file', 'LỖI BẢO MẬT: Không tìm thấy tệp chữ ký số (signature.json) trong bản cập nhật!');
@@ -187,7 +186,6 @@ class Antigravity_Auto_Updater_Plugin {
         }
 
         $ok = openssl_verify($files_json, $signature, $pubkey_id, OPENSSL_ALGO_SHA256);
-        openssl_free_key($pubkey_id);
 
         if ($ok !== 1) {
             return new WP_Error('signature_verification_failed', 'LỖI BẢO MẬT NGUY CẤP: Chữ ký số của bản cập nhật không khớp! Gói cập nhật có thể đã bị sửa đổi hoặc giả mạo.');
@@ -195,7 +193,7 @@ class Antigravity_Auto_Updater_Plugin {
 
         // Kiểm tra tính toàn vẹn của từng file
         foreach ($signature_data['files'] as $relative_path => $expected_hash) {
-            $full_path = trailingslashit($source_dir) . $relative_path;
+            $full_path = trailingslashit($source) . $relative_path;
 
             if ($relative_path === 'signature.json') {
                 continue;
@@ -211,7 +209,7 @@ class Antigravity_Auto_Updater_Plugin {
             }
         }
 
-        return $response;
+        return $source;
     }
 
     /**
