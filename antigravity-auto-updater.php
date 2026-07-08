@@ -3,7 +3,7 @@
 Plugin Name: GreenCie - Bảo Mật
 Plugin URI: https://github.com/dungnguyen302007/Plugin-bao-mat
 Description: Giải pháp toàn diện tích hợp tự động cập nhật ngầm an toàn bằng chữ ký số OpenSSL và các mô-đun phòng thủ chủ động (Quét mã độc, chặn Admin lạ, Khóa cứng tự động mở/khóa hẹn giờ).
-Version: 1.0.8
+Version: 1.0.9
 Author: Antigravity
 Author URI: https://example.com/
 License: GPLv2 or later
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
  */
 class Antigravity_Auto_Updater_Plugin {
     
-    const VERSION = '1.0.8';
+    const VERSION = '1.0.9';
     private $plugin_slug;
     private $plugin_dir_name = 'antigravity-auto-updater';
     
@@ -74,6 +74,9 @@ class Antigravity_Auto_Updater_Plugin {
         
         // Khởi chạy Migration Engine để tự kích hoạt các thay đổi cấu hình qua các version
         add_action('plugins_loaded', array($this, 'run_migration_engine'));
+
+        // Tự động kích hoạt lại plugin sau khi cập nhật thành công
+        add_action('upgrader_process_complete', array($this, 'auto_reactivate_after_upgrade'), 10, 2);
     }
 
     /**
@@ -155,6 +158,25 @@ class Antigravity_Auto_Updater_Plugin {
             return true;
         }
         return $update;
+    }
+
+    /**
+     * Tự động kích hoạt lại plugin sau khi cập nhật thành công
+     */
+    public function auto_reactivate_after_upgrade($upgrader_object, $options) {
+        if (isset($options['action']) && $options['action'] === 'update' && isset($options['type']) && $options['type'] === 'plugin') {
+            if (isset($options['plugins']) && is_array($options['plugins'])) {
+                foreach ($options['plugins'] as $plugin) {
+                    if ($plugin === $this->plugin_slug) {
+                        if (!function_exists('activate_plugin')) {
+                            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+                        }
+                        activate_plugin($this->plugin_slug);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -625,49 +647,93 @@ class Antigravity_Auto_Updater_Plugin {
                     </div>
                 </div>
 
-                <!-- KHỐI 4: HARDENING GUARDS STATUS -->
-                <div class="green-card glow-cyan" style="grid-column: span 1;">
+                <!-- KHỐI 4: SYSTEM DEFENSE MATRIX (BẢNG TÍNH NĂNG) -->
+                <div class="green-card glow-cyan" style="grid-column: span 2;">
                     <div>
                         <h3 class="card-title">
-                            <span class="dashicons dashicons-shield"></span> Mạch Bảo Vệ
+                            <span class="dashicons dashicons-shield"></span> Ma Trận Phòng Thủ Hệ Thống (System Defense Matrix)
                         </h3>
                         
-                        <div class="guard-item">
-                            <span style="font-size: 13px;">Admin Register Guard</span>
-                            <span style="color: #00ff66; font-size: 11px; font-weight: 600; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">ON</span>
-                        </div>
-                        <div class="guard-item">
-                            <span style="font-size: 13px;">Uploads PHP Blocker</span>
-                            <span style="color: #00ff66; font-size: 11px; font-weight: 600; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">ON (.htaccess)</span>
-                        </div>
-                        <div class="guard-item" style="border-bottom: none;">
-                            <span style="font-size: 13px;">Webshell Code Scan</span>
-                            <span style="color: #00ff66; font-size: 11px; font-weight: 600; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">DAILY</span>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px;">
+                            <div class="guard-item">
+                                <span style="font-size: 13px; display: flex; align-items: center;">
+                                    <span class="dashicons dashicons-lock" style="font-size: 16px; margin-right: 6px; color: #00ff66;"></span>
+                                    Chế độ Khóa Cứng (Golden Hardening)
+                                </span>
+                                <span style="color: <?php echo !$is_maintenance ? '#00ff66' : '#ffaa00'; ?>; font-size: 11px; font-weight: 600; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">
+                                    <?php echo !$is_maintenance ? 'ACTIVE' : 'STANDBY'; ?>
+                                </span>
+                            </div>
+                            
+                            <div class="guard-item">
+                                <span style="font-size: 13px; display: flex; align-items: center;">
+                                    <span class="dashicons dashicons-admin-users" style="font-size: 16px; margin-right: 6px; color: #00ff66;"></span>
+                                    Chống tạo Admin lạ (Admin Register Guard)
+                                </span>
+                                <span style="color: #00ff66; font-size: 11px; font-weight: 600; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">ACTIVE</span>
+                            </div>
+
+                            <div class="guard-item">
+                                <span style="font-size: 13px; display: flex; align-items: center;">
+                                    <span class="dashicons dashicons-category" style="font-size: 16px; margin-right: 6px; color: #00ff66;"></span>
+                                    Chặn PHP trong Uploads (PHP Exec Blocker)
+                                </span>
+                                <span style="color: #00ff66; font-size: 11px; font-weight: 600; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">ACTIVE (.htaccess)</span>
+                            </div>
+
+                            <div class="guard-item">
+                                <span style="font-size: 13px; display: flex; align-items: center;">
+                                    <span class="dashicons dashicons-code-standards" style="font-size: 16px; margin-right: 6px; color: #00ff66;"></span>
+                                    Quét & Làm sạch Webshell dòng 1 (Daily Scan)
+                                </span>
+                                <span style="color: #00ff66; font-size: 11px; font-weight: 600; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">DAILY SCHEDULED</span>
+                            </div>
+
+                            <div class="guard-item">
+                                <span style="font-size: 13px; display: flex; align-items: center;">
+                                    <span class="dashicons dashicons-chart-area" style="font-size: 16px; margin-right: 6px; color: #00ff66;"></span>
+                                    Đột biến Database (Anomaly Post Guard)
+                                </span>
+                                <span style="color: #00ff66; font-size: 11px; font-weight: 600; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">MONITORING</span>
+                            </div>
+
+                            <div class="guard-item">
+                                <span style="font-size: 13px; display: flex; align-items: center;">
+                                    <span class="dashicons dashicons-admin-generic" style="font-size: 16px; margin-right: 6px; color: #00ff66;"></span>
+                                    Ẩn thông báo rác Admin (Notices Filter)
+                                </span>
+                                <span style="color: #00ff66; font-size: 11px; font-weight: 600; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">CLEANING ON</span>
+                            </div>
+
+                            <div class="guard-item" style="border-bottom: none; grid-column: span 2;">
+                                <span style="font-size: 13px; display: flex; align-items: center;">
+                                    <span class="dashicons dashicons-update-alt" style="font-size: 16px; margin-right: 6px; color: #00ff66;"></span>
+                                    Tự động Cập nhật an toàn (Cryptographic Updater)
+                                </span>
+                                <span style="color: #00ff66; font-size: 11px; font-weight: 600; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">AUTHENTICATED (OpenSSL RSA)</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- KHỐI 5: CRYPTOGRAPHIC VERIFY -->
-                <div class="green-card glow-cyan" style="grid-column: span 2; justify-content: space-between;">
+                <!-- KHỐI 5: CRYPTOGRAPHIC VERIFY (1 cột) -->
+                <div class="green-card glow-cyan" style="grid-column: span 1; justify-content: space-between;">
                     <div>
-                        <h3 class="card-title">
-                            <span class="dashicons dashicons-vault"></span> Xác Thực Mã Hóa (OpenSSL)
+                        <h3 class="card-title" style="margin-bottom: 8px;">
+                            <span class="dashicons dashicons-vault"></span> Chữ Ký Số
                         </h3>
-                        <p style="margin: 0 0 15px 0; font-size: 13px; color: #8888a0; line-height: 1.5;">
-                            Mỗi bản vá cập nhật tải từ GitHub bắt buộc phải được ký bằng Khóa riêng tư RSA 2048-bit. Website dùng Khóa công khai tích hợp dưới đây để xác thực tính toàn vẹn của file.
+                        <p style="margin: 0 0 10px 0; font-size: 12px; color: #8888a0; line-height: 1.4;">
+                            Khóa RSA 2048-bit xác thực nguồn tải:
                         </p>
                         
-                        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #00f0ff; display: flex; align-items: center; justify-content: space-between; overflow: hidden;">
-                            <span style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden; margin-right: 15px;">
-                                SHA256: <?php echo esc_html($formatted_hash); ?>
-                            </span>
-                            <span style="background: rgba(0, 240, 255, 0.08); padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 600; color: #00f0ff; flex-shrink: 0;">RSA_2048</span>
+                        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.03); padding: 8px 10px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #00f0ff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 12px;">
+                            SHA256: <?php echo esc_html($formatted_hash); ?>
                         </div>
                     </div>
                     
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.02); padding-top: 15px;">
-                        <span style="font-size: 12px; color: #8888a0;">Trực thuộc GitHub Repository: <a href="https://github.com/dungnguyen302007/Plugin-bao-mat" target="_blank" style="color: #00f0ff; text-decoration: none;">Plugin-bao-mat</a></span>
-                        <a href="<?php echo esc_url(admin_url('update-core.php')); ?>" class="cyber-btn btn-cyan" style="font-size: 11px; padding: 6px 14px;">
+                    <div style="border-top: 1px solid rgba(255,255,255,0.02); padding-top: 10px; display: flex; flex-direction: column; gap: 8px;">
+                        <div style="font-size: 11px; color: #8888a0;">GitHub: <a href="https://github.com/dungnguyen302007/Plugin-bao-mat" target="_blank" style="color: #00f0ff; text-decoration: none;">Plugin-bao-mat</a></div>
+                        <a href="<?php echo esc_url(admin_url('update-core.php')); ?>" class="cyber-btn btn-cyan" style="font-size: 11px; padding: 6px 14px; width: 100%;">
                             🔄 Kiểm tra Cập nhật
                         </a>
                     </div>
