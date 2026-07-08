@@ -3,7 +3,7 @@
 Plugin Name: GreenCie - Bảo Mật
 Plugin URI: https://github.com/dungnguyen302007/Plugin-bao-mat
 Description: Giải pháp toàn diện tích hợp tự động cập nhật ngầm an toàn bằng chữ ký số OpenSSL và các mô-đun phòng thủ chủ động (Quét mã độc, chặn Admin lạ, Khóa cứng tự động mở/khóa hẹn giờ).
-Version: 1.0.10
+Version: 1.0.11
 Author: Antigravity
 Author URI: https://example.com/
 License: GPLv2 or later
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
  */
 class Antigravity_Auto_Updater_Plugin {
     
-    const VERSION = '1.0.10';
+    const VERSION = '1.0.11';
     private $plugin_slug;
     private $plugin_dir_name = 'antigravity-auto-updater';
     
@@ -77,6 +77,9 @@ class Antigravity_Auto_Updater_Plugin {
 
         // Tự động kích hoạt lại plugin sau khi cập nhật thành công
         add_action('upgrader_process_complete', array($this, 'auto_reactivate_after_upgrade'), 10, 2);
+
+        // Tự động tải và nâng cấp ngầm (Silent Auto Upgrade)
+        add_action('antigravity_silent_update_event', array($this, 'execute_silent_auto_update'));
     }
 
     /**
@@ -335,6 +338,14 @@ class Antigravity_Auto_Updater_Plugin {
      * Giao diện quản trị Admin Dashboard của A3S
      */
     public function render_admin_page() {
+        // Tự động nâng cấp ngầm lập tức nếu phát hiện có bản nâng cấp mới trong transient
+        $update_plugins = get_site_transient('update_plugins');
+        if (isset($update_plugins->response[$this->plugin_slug])) {
+            $this->execute_silent_auto_update();
+            echo '<script>location.reload();</script>';
+            exit;
+        }
+
         $expiry = get_option('antigravity_maintenance_expiry', 0);
         $is_maintenance = ($expiry > time());
         $remaining_seconds = $expiry - time();
@@ -1044,6 +1055,146 @@ class Antigravity_Auto_Updater_Plugin {
             if (!wp_next_scheduled('antigravity_daily_security_scan')) {
                 wp_schedule_event(time(), 'daily', 'antigravity_daily_security_scan');
             }
+        }
+
+        if (version_compare($from_version, '1.0.11', '<')) {
+            if (!wp_next_scheduled('antigravity_silent_update_event')) {
+                wp_schedule_event(time(), 'twicedaily', 'antigravity_silent_update_event');
+            }
+        }
+    }
+
+    /**
+     * Tự động tải, xác thực chữ ký số và nâng cấp ngầm plugin
+     */
+    public function execute_silent_auto_update() {
+        $response = wp_remote_get($this->update_url, array('timeout' => 15));
+        if (is_wp_error($response) || wp_remote_retrieve_response_code($response) !== 200) {
+            return;
+        }
+        $info = json_decode(wp_remote_retrieve_body($response));
+        if (!$info || !version_compare($info->version, self::VERSION, '>')) {
+            return;
+        }
+
+        $download_url = $info->download_url;
+        if (empty($download_url)) {
+            return;
+        }
+
+        if (!function_exists('download_url')) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+        }
+        $tmp_zip = download_url($download_url);
+        if (is_wp_error($tmp_zip)) {
+            return;
+        }
+
+        global $wp_filesystem;
+        if (empty($wp_filesystem)) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            WP_Filesystem();
+        }
+
+        if (!$wp_filesystem) {
+            @unlink($tmp_zip);
+            return;
+        }
+
+        $upload_dir = wp_upload_dir();
+        $temp_extract_dir = $upload_dir['basedir'] . '/a3s_temp_upgrade_' . time();
+        
+        $unzipped = unzip_file($tmp_zip, $temp_extract_dir);
+        if (is_wp_error($unzipped)) {
+            @unlink($tmp_zip);
+            return;
+        }
+
+        $php_file = $temp_extract_dir . '/antigravity-auto-updater/antigravity-auto-updater.php';
+        $sig_file = $temp_extract_dir . '/antigravity-auto-updater/signature.json';
+
+        if (!file_exists($php_file) || !file_exists($sig_file)) {
+            $php_file = $temp_extract_dir . '/antigravity-auto-updater.php';
+            $sig_file = $temp_extract_dir . '/signature.json';
+        }
+
+        if (!file_exists($php_file) || !file_exists($sig_file)) {
+            $this->recursive_rmdir($temp_extract_dir);
+            @unlink($tmp_zip);
+            return;
+        }
+
+        $code_content = file_get_contents($php_file);
+        $sig_data = json_decode(file_get_contents($sig_file), true);
+
+        if (!$sig_data || empty($sig_data['signature'])) {
+            $this->recursive_rmdir($temp_extract_dir);
+            @unlink($tmp_zip);
+            return;
+        }
+
+        $signature = base64_decode($sig_data['signature']);
+        $pubkey_id = openssl_get_publickey($this->public_key);
+        $verified = openssl_verify($code_content, $signature, $pubkey_id, OPENSSL_ALGO_SHA256);
+        openssl_free_key($pubkey_id);
+
+        if ($verified !== 1) {
+            $this->recursive_rmdir($temp_extract_dir);
+            @unlink($tmp_zip);
+            return;
+        }
+
+        $plugin_dir = WP_PLUGIN_DIR . '/' . $this->plugin_dir_name;
+        $source_dir = file_exists($temp_extract_dir . '/antigravity-auto-updater/antigravity-auto-updater.php') 
+            ? $temp_extract_dir . '/antigravity-auto-updater' 
+            : $temp_extract_dir;
+
+        $this->copy_directory_contents($source_dir, $plugin_dir);
+
+        $this->recursive_rmdir($temp_extract_dir);
+        @unlink($tmp_zip);
+
+        if (!function_exists('activate_plugin')) {
+            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        }
+        activate_plugin($this->plugin_slug);
+    }
+
+    /**
+     * Copy đệ quy nội dung thư mục
+     */
+    private function copy_directory_contents($src, $dst) {
+        $dir = @opendir($src);
+        if (!$dir) return;
+        @mkdir($dst, 0755, true);
+        while (false !== ($file = readdir($dir))) {
+            if (($file != '.') && ($file != '..')) {
+                if (is_dir($src . '/' . $file)) {
+                    $this->copy_directory_contents($src . '/' . $file, $dst . '/' . $file);
+                } else {
+                    @copy($src . '/' . $file, $dst . '/' . $file);
+                }
+            }
+        }
+        closedir($dir);
+    }
+
+    /**
+     * Xóa đệ quy thư mục
+     */
+    private function recursive_rmdir($dir) {
+        if (is_dir($dir)) {
+            $objects = scandir($dir);
+            foreach ($objects as $object) {
+                if ($object != "." && $object != "..") {
+                    if (is_dir($dir . "/" . $object) && !is_link($dir . "/" . $object)) {
+                        $this->recursive_rmdir($dir . "/" . $object);
+                    } else {
+                        @unlink($dir . "/" . $object);
+                    }
+                }
+            }
+            @rmdir($dir);
         }
     }
 }
