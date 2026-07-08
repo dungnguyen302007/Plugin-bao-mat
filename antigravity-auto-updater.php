@@ -3,7 +3,7 @@
 Plugin Name: GreenCie - Bảo Mật
 Plugin URI: https://github.com/dungnguyen302007/Plugin-bao-mat
 Description: Giải pháp toàn diện tích hợp tự động cập nhật ngầm an toàn bằng chữ ký số OpenSSL và các mô-đun phòng thủ chủ động (Quét mã độc, chặn Admin lạ, Khóa cứng tự động mở/khóa hẹn giờ).
-Version: 1.0.13
+Version: 1.0.14
 Author: Antigravity
 Author URI: https://example.com/
 License: GPLv2 or later
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
  */
 class Antigravity_Auto_Updater_Plugin {
     
-    const VERSION = '1.0.13';
+    const VERSION = '1.0.14';
     private $plugin_slug;
     private $plugin_dir_name = 'antigravity-auto-updater';
     
@@ -68,9 +68,6 @@ class Antigravity_Auto_Updater_Plugin {
         // 6. Đăng ký Menu trang quản trị trong Dashboard
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'handle_admin_actions'));
-        
-        // 7. Dọn dẹp giao diện Admin (Ẩn thông báo quảng cáo rác từ plugin/theme khác)
-        add_action('admin_head', array($this, 'clean_admin_notices'));
         
         // Khởi chạy Migration Engine để tự kích hoạt các thay đổi cấu hình qua các version
         add_action('plugins_loaded', array($this, 'run_migration_engine'));
@@ -712,7 +709,7 @@ class Antigravity_Auto_Updater_Plugin {
                                 <span style="font-size: 11px; color: #8888a0; padding-left: 22px;">Tự động phát hiện và khôi phục (làm sạch) các file code PHP bị chèn mã độc.</span>
                             </div>
 
-                            <div class="guard-item" style="flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px 0;">
+                            <div class="guard-item" style="border-bottom: none; flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px 0;">
                                 <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
                                     <span style="font-size: 13.5px; font-weight: 600; display: flex; align-items: center; color: #fff;">
                                         <span class="dashicons dashicons-chart-area" style="font-size: 16px; margin-right: 6px; color: #00ff66;"></span>
@@ -723,18 +720,7 @@ class Antigravity_Auto_Updater_Plugin {
                                 <span style="font-size: 11px; color: #8888a0; padding-left: 22px;">Phát hiện và cảnh báo qua Email khi có hiện tượng bot tự đăng hàng loạt bài viết rác.</span>
                             </div>
 
-                            <div class="guard-item" style="flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px 0;">
-                                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                                    <span style="font-size: 13.5px; font-weight: 600; display: flex; align-items: center; color: #fff;">
-                                        <span class="dashicons dashicons-admin-generic" style="font-size: 16px; margin-right: 6px; color: #00ff66;"></span>
-                                        Dọn dẹp quảng cáo rác trong Admin
-                                    </span>
-                                    <span style="color: #00ff66; font-size: 10px; font-weight: 700; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">ĐANG BẬT</span>
-                                </div>
-                                <span style="font-size: 11px; color: #8888a0; padding-left: 22px;">Dọn dẹp và ẩn hoàn toàn các thông báo rác, quảng cáo của plugin/theme khác.</span>
-                            </div>
-
-                            <div class="guard-item" style="border-bottom: none; grid-column: span 2; flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px 0 0 0;">
+                            <div class="guard-item" style="border-bottom: none; flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px 0 0 0;">
                                 <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
                                     <span style="font-size: 13.5px; font-weight: 600; display: flex; align-items: center; color: #fff;">
                                         <span class="dashicons dashicons-update-alt" style="font-size: 16px; margin-right: 6px; color: #00ff66;"></span>
@@ -1012,45 +998,6 @@ class Antigravity_Auto_Updater_Plugin {
             wp_mail($admin_email, $subject, $message);
         }
     }
-
-    /**
-     * MODULE 2.5: Dọn dẹp giao diện Admin, ẩn thông báo rác, quảng cáo từ plugin/theme khác
-     */
-    public function clean_admin_notices() {
-        ?>
-        <style id="green-clean-notices">
-            /* Ẩn TOÀN BỘ thông báo rác trên trang quản lý GreenCie Panel để giữ thiết kế sạch sẽ */
-            .toplevel_page_a3s-security .notice,
-            .toplevel_page_a3s-security .update-nag,
-            .toplevel_page_a3s-security .updated,
-            .toplevel_page_a3s-security .error,
-            .toplevel_page_a3s-security .tgmpa {
-                display: none !important;
-            }
-
-            /* Ẩn thông báo gợi ý cài đặt plugin của Theme (TGMPA) trên toàn bộ admin */
-            .tgmpa,
-            .tgmpa-notice,
-            .flatsome-tgmpa-notice,
-            [class*="tgmpa"],
-            div.notice:has(a[href*="tgmpa"]),
-            div.notice:has(a[href*="install-plugins"]),
-            /* Ẩn các thông báo của Rank Math */
-            .rank-math-notice,
-            [class*="rank-math-notice"],
-            /* Ẩn thông báo cập nhật/quảng cáo của WooCommerce */
-            .woocommerce-message.notice,
-            .woocommerce-store-alerts,
-            /* Ẩn thông báo rác của các theme/plugin khác */
-            .flatsome-notice,
-            .yoast-notice,
-            .elementor-notice {
-                display: none !important;
-            }
-        </style>
-        <?php
-    }
-
     /**
      * MODULE 3: MIGRATION ENGINE (Tự động kích hoạt thiết lập & Cron)
      */
