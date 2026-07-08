@@ -1,0 +1,13 @@
+# Loại bỏ file khóa bảo mật riêng tư dùng để ký (Tuyệt đối không đẩy lên GitHub)
+private_key.pem
+
+# File khóa công khai PEM (đã nhúng cứng trong php nên không cần đẩy)
+public_key.pem
+
+# Các script phát triển local
+generate_keys_and_sign.php
+build_release.bat
+
+# Các file tạm hệ thống
+.DS_Store
+Thumbs.db

@@ -1,0 +1,14 @@
+{
+    "name": "Antigravity Auto Updater & Security Suite",
+    "slug": "antigravity-auto-updater",
+    "version": "1.0.1",
+    "author": "Antigravity",
+    "homepage": "https://github.com/dungnguyen302007/Plugin-bao-mat",
+    "download_url": "https://raw.githubusercontent.com/dungnguyen302007/Plugin-bao-mat/main/antigravity-auto-updater.zip",
+    "sections": {
+        "description": "Gi\u1ea3i ph\u00e1p b\u1ea3o m\u1eadt ch\u1ee7 \u0111\u1ed9ng v\u00e0 t\u1ef1 \u0111\u1ed9ng c\u1eadp nh\u1eadt ng\u1ea7m.",
+        "changelog": "<h4>Phi\u00ean b\u1ea3n 1.0.0</h4><ul><li>Kh\u1edfi t\u1ea1o h\u1ec7 th\u1ed1ng b\u1ea3o m\u1eadt ch\u1ee7 \u0111\u1ed9ng.</li><li>T\u00edch h\u1ee3p ch\u1eef k\u00fd s\u1ed1 OpenSSL RSA.</li><li>\u1ea8n c\u00e1c menu c\u00e0i \u0111\u1eb7t v\u00e0 ch\u1eb7n truy c\u1eadp trang c\u1eadp nh\u1eadt \u0111\u1ec3 kh\u00f3a c\u1ee9ng h\u1ec7 th\u1ed1ng.</li></ul>"
+    },
+    "tested": "6.5",
+    "requires": "6.0"
+}

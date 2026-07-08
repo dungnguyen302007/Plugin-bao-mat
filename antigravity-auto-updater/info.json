@@ -1,0 +1,14 @@
+{
+  "name": "Antigravity Auto Updater & Security Suite",
+  "slug": "antigravity-auto-updater",
+  "version": "1.2.0",
+  "author": "Antigravity",
+  "homepage": "https://github.com/your-username/antigravity-auto-updater",
+  "download_url": "https://github.com/your-username/antigravity-auto-updater/releases/download/v1.2.0/antigravity-auto-updater.zip",
+  "sections": {
+    "description": "Giải pháp toàn diện tích hợp tự động cập nhật ngầm an toàn bằng chữ ký số OpenSSL và các mô-đun phòng thủ chủ động (Quét mã độc, chặn Admin lạ, Khóa cứng tự động mở/khóa hẹn giờ).",
+    "changelog": "<h4>Phiên bản 1.2.0</h4><ul><li>Tích hợp panel điều khiển tạm mở khóa bảo trì trong 60 phút.</li><li>Tự động kích hoạt WP-Cron quét virus và kiểm toán DB.</li></ul><h4>Phiên bản 1.1.0</h4><ul><li>Khởi tạo cấu hình Whitelist Admin Creator mặc định.</li></ul>"
+  },
+  "tested": "6.5",
+  "requires": "6.0"
+}
