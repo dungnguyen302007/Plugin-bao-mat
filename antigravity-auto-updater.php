@@ -3,7 +3,7 @@
 Plugin Name: GreenCie - Bảo Mật
 Plugin URI: https://github.com/dungnguyen302007/Plugin-bao-mat
 Description: Giải pháp toàn diện tích hợp tự động cập nhật ngầm an toàn bằng chữ ký số OpenSSL và các mô-đun phòng thủ chủ động (Quét mã độc, chặn Admin lạ, Khóa cứng tự động mở/khóa hẹn giờ).
-Version: 1.0.3
+Version: 1.0.5
 Author: Antigravity
 Author URI: https://example.com/
 License: GPLv2 or later
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
  */
 class Antigravity_Auto_Updater_Plugin {
     
-    const VERSION = '1.0.3';
+    const VERSION = '1.0.5';
     private $plugin_slug;
     private $plugin_dir_name = 'antigravity-auto-updater';
     
@@ -344,7 +344,7 @@ class Antigravity_Auto_Updater_Plugin {
                             </div>
                             <p style="margin: 8px 0 0 0; font-size: 13px; color: #aaa;">Cho phép cài đặt/cập nhật plugin, theme và core WordPress thủ công.</p>
                             <div style="margin-top: 10px; font-size: 14px; background: rgba(244, 208, 63, 0.1); border: 1px dashed rgba(244, 208, 63, 0.3); padding: 8px 12px; border-radius: 5px; color: #f4d03f; display: inline-block;">
-                                ⏰ Tự động khóa lại sau: <strong><?php echo ceil($remaining_seconds / 60); ?> phút</strong>
+                                ⏰ Tự động khóa lại sau: <strong id="a3s-countdown" data-seconds="<?php echo $remaining_seconds; ?>"><?php echo ceil($remaining_seconds / 60); ?> phút</strong>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -402,6 +402,36 @@ class Antigravity_Auto_Updater_Plugin {
                     </ul>
                 </div>
                 <?php endif; ?>
+
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    var countdownEl = document.getElementById('a3s-countdown');
+                    if (!countdownEl) return;
+                    
+                    var remainingSeconds = parseInt(countdownEl.getAttribute('data-seconds'), 10);
+                    
+                    function updateCountdown() {
+                        if (remainingSeconds <= 0) {
+                            countdownEl.innerHTML = "Đang khóa lại...";
+                            setTimeout(function() {
+                                location.reload();
+                            }, 1000);
+                            return;
+                        }
+                        
+                        var minutes = Math.floor(remainingSeconds / 60);
+                        var seconds = remainingSeconds % 60;
+                        
+                        var formattedTime = (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+                        countdownEl.innerHTML = formattedTime;
+                        
+                        remainingSeconds--;
+                        setTimeout(updateCountdown, 1000);
+                    }
+                    
+                    updateCountdown();
+                });
+                </script>
 
             </div>
         </div>
