@@ -1,9 +1,9 @@
 <?php
 /*
-Plugin Name: Antigravity Auto Updater & Security Suite
+Plugin Name: GreenCie - Bảo Mật
 Plugin URI: https://github.com/dungnguyen302007/Plugin-bao-mat
 Description: Giải pháp toàn diện tích hợp tự động cập nhật ngầm an toàn bằng chữ ký số OpenSSL và các mô-đun phòng thủ chủ động (Quét mã độc, chặn Admin lạ, Khóa cứng tự động mở/khóa hẹn giờ).
-Version: 1.0.3
+Version: 1.0.4
 Author: Antigravity
 Author URI: https://example.com/
 License: GPLv2 or later
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
  */
 class Antigravity_Auto_Updater_Plugin {
     
-    const VERSION = '1.0.3';
+    const VERSION = '1.0.4';
     private $plugin_slug;
     private $plugin_dir_name = 'antigravity-auto-updater';
     
@@ -284,9 +284,9 @@ class Antigravity_Auto_Updater_Plugin {
         if (in_array($pagenow, $restricted_pages)) {
             wp_die('<div style="font-family: \'Outfit\', \'Inter\', sans-serif; max-width: 600px; margin: 50px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 4px solid #ec7063;">
                 <h2 style="color: #ec7063; margin-top: 0;">LỖI BẢO MẬT: HỆ THỐNG ĐANG KHÓA CỨNG</h2>
-                <p style="color: #666; line-height: 1.6;">Website này đang kích hoạt chế độ khóa cứng (Golden Hardening) của plugin A3S Security để ngăn chặn hacker cài cắm mã độc.</p>
-                <p style="color: #666; line-height: 1.6;">Vui lòng truy cập trang quản lý <strong>A3S Security</strong> trong Dashboard để thực hiện <strong>"Tạm mở khóa bảo trì"</strong> trước khi truy cập trang này!</p>
-                <p style="margin-top: 20px;"><a href="' . admin_url('admin.php?page=a3s-security') . '" style="background: #5dade2; color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 4px; font-weight: 600; display: inline-block;">Quay lại A3S Panel</a></p>
+                <p style="color: #666; line-height: 1.6;">Website này đang kích hoạt chế độ khóa cứng (Golden Hardening) của plugin GreenCie - Bảo Mật để ngăn chặn hacker cài cắm mã độc.</p>
+                <p style="color: #666; line-height: 1.6;">Vui lòng truy cập trang quản lý <strong>GreenCie - Bảo Mật</strong> trong Dashboard để thực hiện <strong>"Tạm mở khóa bảo trì"</strong> trước khi truy cập trang này!</p>
+                <p style="margin-top: 20px;"><a href="' . admin_url('admin.php?page=a3s-security') . '" style="background: #5dade2; color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 4px; font-weight: 600; display: inline-block;">Quay lại GreenCie Panel</a></p>
             </div>', 'Hệ thống đã bị khóa cứng', array('response' => 403));
         }
     }
@@ -296,8 +296,8 @@ class Antigravity_Auto_Updater_Plugin {
      */
     public function add_admin_menu() {
         add_menu_page(
-            'A3S Security Suite',
-            'A3S Security',
+            'GreenCie - Bảo Mật Suite',
+            'GreenCie - Bảo Mật',
             'manage_options',
             'a3s-security',
             array($this, 'render_admin_page'),
@@ -320,8 +320,8 @@ class Antigravity_Auto_Updater_Plugin {
                 <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; margin-bottom: 25px;">
                     <div>
                         <h1 style="margin: 0; font-size: 24px; font-weight: 700; color: #5dade2; display: flex; align-items: center;">
-                            <span class="dashicons dashicons-shield-alt" style="font-size: 32px; width: 32px; height: 32px; margin-right: 10px; color: #5dade2;"></span>
-                            Antigravity A3S Security Panel
+                             <span class="dashicons dashicons-shield-alt" style="font-size: 32px; width: 32px; height: 32px; margin-right: 10px; color: #5dade2;"></span>
+                            GreenCie - Bảo Mật Panel
                         </h1>
                         <p style="margin: 5px 0 0 0; color: #a9dfbf; font-size: 13px;">Hệ thống bảo vệ chủ động và Tự động cập nhật an toàn</p>
                     </div>
