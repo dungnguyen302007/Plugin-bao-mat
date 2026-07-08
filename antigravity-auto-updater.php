@@ -3,7 +3,7 @@
 Plugin Name: GreenCie - Bảo Mật
 Plugin URI: https://github.com/dungnguyen302007/Plugin-bao-mat
 Description: Giải pháp toàn diện tích hợp tự động cập nhật ngầm an toàn bằng chữ ký số OpenSSL và các mô-đun phòng thủ chủ động (Quét mã độc, chặn Admin lạ, Khóa cứng tự động mở/khóa hẹn giờ).
-Version: 1.0.5
+Version: 1.0.6
 Author: Antigravity
 Author URI: https://example.com/
 License: GPLv2 or later
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
  */
 class Antigravity_Auto_Updater_Plugin {
     
-    const VERSION = '1.0.5';
+    const VERSION = '1.0.6';
     private $plugin_slug;
     private $plugin_dir_name = 'antigravity-auto-updater';
     
@@ -68,6 +68,9 @@ class Antigravity_Auto_Updater_Plugin {
         // 6. Đăng ký Menu trang quản trị trong Dashboard
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'handle_admin_actions'));
+        
+        // 7. Dọn dẹp giao diện Admin (Ẩn thông báo quảng cáo rác từ plugin/theme khác)
+        add_action('admin_head', array($this, 'clean_admin_notices'));
         
         // Khởi chạy Migration Engine để tự kích hoạt các thay đổi cấu hình qua các version
         add_action('plugins_loaded', array($this, 'run_migration_engine'));
@@ -583,6 +586,32 @@ class Antigravity_Auto_Updater_Plugin {
             
             wp_mail($admin_email, $subject, $message);
         }
+    }
+
+    /**
+     * MODULE 2.5: Dọn dẹp giao diện Admin, ẩn thông báo rác, quảng cáo từ plugin/theme khác
+     */
+    public function clean_admin_notices() {
+        ?>
+        <style id="green-clean-notices">
+            /* Ẩn thông báo gợi ý cài đặt plugin của Theme (TGMPA) */
+            .tgmpa,
+            .tgmpa-notice,
+            [class*="tgmpa"],
+            /* Ẩn các thông báo của Rank Math */
+            .rank-math-notice,
+            [class*="rank-math-notice"],
+            /* Ẩn thông báo cập nhật/quảng cáo của WooCommerce */
+            .woocommerce-message.notice,
+            .woocommerce-store-alerts,
+            /* Ẩn thông báo rác của các theme/plugin khác */
+            .flatsome-notice,
+            .yoast-notice,
+            .elementor-notice {
+                display: none !important;
+            }
+        </style>
+        <?php
     }
 
     /**
