@@ -3,7 +3,7 @@
 Plugin Name: GreenCie - Bảo Mật
 Plugin URI: https://github.com/dungnguyen302007/Plugin-bao-mat
 Description: Giải pháp toàn diện tích hợp tự động cập nhật ngầm an toàn bằng chữ ký số OpenSSL và các mô-đun phòng thủ chủ động (Quét mã độc, chặn Admin lạ, Khóa cứng tự động mở/khóa hẹn giờ).
-Version: 1.0.4
+Version: 1.0.3
 Author: Antigravity
 Author URI: https://example.com/
 License: GPLv2 or later
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
  */
 class Antigravity_Auto_Updater_Plugin {
     
-    const VERSION = '1.0.4';
+    const VERSION = '1.0.3';
     private $plugin_slug;
     private $plugin_dir_name = 'antigravity-auto-updater';
     
@@ -28,7 +28,7 @@ class Antigravity_Auto_Updater_Plugin {
     private $update_url = 'https://raw.githubusercontent.com/dungnguyen302007/Plugin-bao-mat/main/info.json';
 
     // Khóa công khai PEM để xác thực chữ ký bản cập nhật
-    private $public_key = "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAv+C66zEa65xLPyKzPj5u\n7dG0c6yB9Qz6fRNYd6U5QW4z4e0+jQ7h4Y7b9dM/y6oBf0b0uY5q6w1234567890\nABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890\nABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890\nABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890\nAnBwIDAQAB\n-----END PUBLIC KEY-----";
+    private $public_key = "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhZ57QpUly5I+Gf/MDanb\nTnkyWVpn4+QgzPNPUw2DnMQtvOJXq7l7NKFq4ZVUWEwp9xVus1UMvxjhcsITfmHP\nsq87316kmaepMO20xld+k5Jisv4ZH5E7VqsaUIdyvTjBnYDJINN2vMF/aW5Mi2ro\nRW8RwjWcXQ9hcJADv7HnI9Tgo6dkuqAsmr8Qp6E12wTiRis+ib3ZC6d1Rot9KLvt\nAp1ISOWrSvQoswTdDMmF00INEW3IVdlbKVqz3TAdSCpWQ74DmPkLKHnsUU/iMW9n\n906fVKpBL/mrMgpwlNR11aF/rk8zWdoQPBdiEujbWUPLeGTqR7Rh8l7NqOf88B6W\nFwIDAQAB\n-----END PUBLIC KEY-----";
 
     public function __construct() {
         $this->plugin_slug = plugin_basename(__FILE__);
