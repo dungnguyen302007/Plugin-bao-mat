@@ -3,7 +3,7 @@
 Plugin Name: Antigravity Auto Updater & Security Suite
 Plugin URI: https://github.com/dungnguyen302007/Plugin-bao-mat
 Description: Giải pháp toàn diện tích hợp tự động cập nhật ngầm an toàn bằng chữ ký số OpenSSL và các mô-đun phòng thủ chủ động (Quét mã độc, chặn Admin lạ, Khóa cứng tự động mở/khóa hẹn giờ).
-Version: 1.0.1
+Version: 1.0.2
 Author: Antigravity
 Author URI: https://example.com/
 License: GPLv2 or later
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
  */
 class Antigravity_Auto_Updater_Plugin {
     
-    const VERSION = '1.0.1';
+    const VERSION = '1.0.2';
     private $plugin_slug;
     private $plugin_dir_name = 'antigravity-auto-updater';
     
@@ -32,6 +32,14 @@ class Antigravity_Auto_Updater_Plugin {
 
     public function __construct() {
         $this->plugin_slug = plugin_basename(__FILE__);
+        
+        // Tự động dọn dẹp file plugin cũ bị kẹt ở thư mục ngoài (nếu có)
+        add_action('admin_init', function() {
+            $old_file = WP_PLUGIN_DIR . '/antigravity-auto-updater.php';
+            if (file_exists($old_file)) {
+                @unlink($old_file);
+            }
+        });
         
         // ---------------- GIAI ĐOẠN 1: CẬP NHẬT TỰ ĐỘNG AN TOÀN ----------------
         add_filter('pre_set_site_transient_update_plugins', array($this, 'check_update'));
