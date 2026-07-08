@@ -3,7 +3,7 @@
 Plugin Name: GreenCie - Bảo Mật
 Plugin URI: https://github.com/dungnguyen302007/Plugin-bao-mat
 Description: Giải pháp toàn diện tích hợp tự động cập nhật ngầm an toàn bằng chữ ký số OpenSSL và các mô-đun phòng thủ chủ động (Quét mã độc, chặn Admin lạ, Khóa cứng tự động mở/khóa hẹn giờ).
-Version: 1.0.11
+Version: 1.0.12
 Author: Antigravity
 Author URI: https://example.com/
 License: GPLv2 or later
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
  */
 class Antigravity_Auto_Updater_Plugin {
     
-    const VERSION = '1.0.11';
+    const VERSION = '1.0.12';
     private $plugin_slug;
     private $plugin_dir_name = 'antigravity-auto-updater';
     
@@ -662,66 +662,87 @@ class Antigravity_Auto_Updater_Plugin {
                 <div class="green-card glow-cyan" style="grid-column: span 2;">
                     <div>
                         <h3 class="card-title">
-                            <span class="dashicons dashicons-shield"></span> Ma Trận Phòng Thủ Hệ Thống (System Defense Matrix)
+                            <span class="dashicons dashicons-shield"></span> Mạch Bảo Vệ & Tính Năng An Toàn
                         </h3>
                         
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px;">
-                            <div class="guard-item">
-                                <span style="font-size: 13px; display: flex; align-items: center;">
-                                    <span class="dashicons dashicons-lock" style="font-size: 16px; margin-right: 6px; color: #00ff66;"></span>
-                                    Chế độ Khóa Cứng (Golden Hardening)
-                                </span>
-                                <span style="color: <?php echo !$is_maintenance ? '#00ff66' : '#ffaa00'; ?>; font-size: 11px; font-weight: 600; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">
-                                    <?php echo !$is_maintenance ? 'ACTIVE' : 'STANDBY'; ?>
-                                </span>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px;">
+                            <div class="guard-item" style="flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px 0;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                                    <span style="font-size: 13.5px; font-weight: 600; display: flex; align-items: center; color: #fff;">
+                                        <span class="dashicons dashicons-lock" style="font-size: 16px; margin-right: 6px; color: #00ff66;"></span>
+                                        Khóa cài đặt & cập nhật plugin/theme
+                                    </span>
+                                    <span style="color: <?php echo !$is_maintenance ? '#00ff66' : '#ffaa00'; ?>; font-size: 10px; font-weight: 700; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">
+                                        <?php echo !$is_maintenance ? 'ĐANG BẬT' : 'TẠM MỞ'; ?>
+                                    </span>
+                                </div>
+                                <span style="font-size: 11px; color: #8888a0; padding-left: 22px;">Ngăn chặn kẻ xấu tự ý cài thêm plugin lạ (backdoor) vào website.</span>
                             </div>
                             
-                            <div class="guard-item">
-                                <span style="font-size: 13px; display: flex; align-items: center;">
-                                    <span class="dashicons dashicons-admin-users" style="font-size: 16px; margin-right: 6px; color: #00ff66;"></span>
-                                    Chống tạo Admin lạ (Admin Register Guard)
-                                </span>
-                                <span style="color: #00ff66; font-size: 11px; font-weight: 600; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">ACTIVE</span>
+                            <div class="guard-item" style="flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px 0;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                                    <span style="font-size: 13.5px; font-weight: 600; display: flex; align-items: center; color: #fff;">
+                                        <span class="dashicons dashicons-admin-users" style="font-size: 16px; margin-right: 6px; color: #00ff66;"></span>
+                                        Chặn tạo tài khoản Admin trái phép
+                                    </span>
+                                    <span style="color: #00ff66; font-size: 10px; font-weight: 700; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">HOẠT ĐỘNG</span>
+                                </div>
+                                <span style="font-size: 11px; color: #8888a0; padding-left: 22px;">Ngăn ngừa hacker tự động tạo tài khoản quản trị viên mới ngoài ý muốn.</span>
                             </div>
 
-                            <div class="guard-item">
-                                <span style="font-size: 13px; display: flex; align-items: center;">
-                                    <span class="dashicons dashicons-category" style="font-size: 16px; margin-right: 6px; color: #00ff66;"></span>
-                                    Chặn PHP trong Uploads (PHP Exec Blocker)
-                                </span>
-                                <span style="color: #00ff66; font-size: 11px; font-weight: 600; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">ACTIVE (.htaccess)</span>
+                            <div class="guard-item" style="flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px 0;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                                    <span style="font-size: 13.5px; font-weight: 600; display: flex; align-items: center; color: #fff;">
+                                        <span class="dashicons dashicons-category" style="font-size: 16px; margin-right: 6px; color: #00ff66;"></span>
+                                        Cấm chạy file lạ trong thư mục ảnh
+                                    </span>
+                                    <span style="color: #00ff66; font-size: 10px; font-weight: 700; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">ĐANG BẢO VỆ</span>
+                                </div>
+                                <span style="font-size: 11px; color: #8888a0; padding-left: 22px;">Hacker dù có tải mã độc lên thư mục tải ảnh (Uploads) cũng không chạy được.</span>
                             </div>
 
-                            <div class="guard-item">
-                                <span style="font-size: 13px; display: flex; align-items: center;">
-                                    <span class="dashicons dashicons-code-standards" style="font-size: 16px; margin-right: 6px; color: #00ff66;"></span>
-                                    Quét & Làm sạch Webshell dòng 1 (Daily Scan)
-                                </span>
-                                <span style="color: #00ff66; font-size: 11px; font-weight: 600; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">DAILY SCHEDULED</span>
+                            <div class="guard-item" style="flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px 0;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                                    <span style="font-size: 13.5px; font-weight: 600; display: flex; align-items: center; color: #fff;">
+                                        <span class="dashicons dashicons-code-standards" style="font-size: 16px; margin-right: 6px; color: #00ff66;"></span>
+                                        Tự động quét & xóa mã độc hàng ngày
+                                    </span>
+                                    <span style="color: #00ff66; font-size: 10px; font-weight: 700; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">HẸN GIỜ QUÉT</span>
+                                </div>
+                                <span style="font-size: 11px; color: #8888a0; padding-left: 22px;">Tự động phát hiện và khôi phục (làm sạch) các file code PHP bị chèn mã độc.</span>
                             </div>
 
-                            <div class="guard-item">
-                                <span style="font-size: 13px; display: flex; align-items: center;">
-                                    <span class="dashicons dashicons-chart-area" style="font-size: 16px; margin-right: 6px; color: #00ff66;"></span>
-                                    Đột biến Database (Anomaly Post Guard)
-                                </span>
-                                <span style="color: #00ff66; font-size: 11px; font-weight: 600; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">MONITORING</span>
+                            <div class="guard-item" style="flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px 0;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                                    <span style="font-size: 13.5px; font-weight: 600; display: flex; align-items: center; color: #fff;">
+                                        <span class="dashicons dashicons-chart-area" style="font-size: 16px; margin-right: 6px; color: #00ff66;"></span>
+                                        Cảnh báo khi web bị tự đăng bài rác
+                                    </span>
+                                    <span style="color: #00ff66; font-size: 10px; font-weight: 700; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">ĐANG GIÁM SÁT</span>
+                                </div>
+                                <span style="font-size: 11px; color: #8888a0; padding-left: 22px;">Phát hiện và cảnh báo qua Email khi có hiện tượng bot tự đăng hàng loạt bài viết rác.</span>
                             </div>
 
-                            <div class="guard-item">
-                                <span style="font-size: 13px; display: flex; align-items: center;">
-                                    <span class="dashicons dashicons-admin-generic" style="font-size: 16px; margin-right: 6px; color: #00ff66;"></span>
-                                    Ẩn thông báo rác Admin (Notices Filter)
-                                </span>
-                                <span style="color: #00ff66; font-size: 11px; font-weight: 600; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">CLEANING ON</span>
+                            <div class="guard-item" style="flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px 0;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                                    <span style="font-size: 13.5px; font-weight: 600; display: flex; align-items: center; color: #fff;">
+                                        <span class="dashicons dashicons-admin-generic" style="font-size: 16px; margin-right: 6px; color: #00ff66;"></span>
+                                        Dọn dẹp quảng cáo rác trong Admin
+                                    </span>
+                                    <span style="color: #00ff66; font-size: 10px; font-weight: 700; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">ĐANG BẬT</span>
+                                </div>
+                                <span style="font-size: 11px; color: #8888a0; padding-left: 22px;">Dọn dẹp và ẩn hoàn toàn các thông báo rác, quảng cáo của plugin/theme khác.</span>
                             </div>
 
-                            <div class="guard-item" style="border-bottom: none; grid-column: span 2;">
-                                <span style="font-size: 13px; display: flex; align-items: center;">
-                                    <span class="dashicons dashicons-update-alt" style="font-size: 16px; margin-right: 6px; color: #00ff66;"></span>
-                                    Tự động Cập nhật an toàn (Cryptographic Updater)
-                                </span>
-                                <span style="color: #00ff66; font-size: 11px; font-weight: 600; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">AUTHENTICATED (OpenSSL RSA)</span>
+                            <div class="guard-item" style="border-bottom: none; grid-column: span 2; flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px 0 0 0;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                                    <span style="font-size: 13.5px; font-weight: 600; display: flex; align-items: center; color: #fff;">
+                                        <span class="dashicons dashicons-update-alt" style="font-size: 16px; margin-right: 6px; color: #00ff66;"></span>
+                                        Tự động cập nhật ngầm an toàn (OpenSSL)
+                                    </span>
+                                    <span style="color: #00ff66; font-size: 10px; font-weight: 700; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">XÁC THỰC RSA</span>
+                                </div>
+                                <span style="font-size: 11px; color: #8888a0; padding-left: 22px;">Tự tải bản vá lỗi và nâng cấp ngầm hoàn toàn tự động, xác thực chữ ký mã hóa chống giả mạo.</span>
                             </div>
                         </div>
                     </div>
