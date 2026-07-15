@@ -3,7 +3,7 @@
 Plugin Name: GreenCie - Bảo Mật
 Plugin URI: https://github.com/dungnguyen302007/Plugin-bao-mat
 Description: Giải pháp toàn diện tích hợp tự động cập nhật ngầm an toàn bằng chữ ký số OpenSSL và các mô-đun phòng thủ chủ động (Quét mã độc, chặn Admin lạ, Khóa cứng tự động mở/khóa hẹn giờ).
-Version: 1.0.14
+Version: 1.0.15
 Author: Antigravity
 Author URI: https://example.com/
 License: GPLv2 or later
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
  */
 class Antigravity_Auto_Updater_Plugin {
     
-    const VERSION = '1.0.14';
+    const VERSION = '1.0.15';
     private $plugin_slug;
     private $plugin_dir_name = 'antigravity-auto-updater';
     
@@ -702,11 +702,11 @@ class Antigravity_Auto_Updater_Plugin {
                                 <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
                                     <span style="font-size: 13.5px; font-weight: 600; display: flex; align-items: center; color: #fff;">
                                         <span class="dashicons dashicons-code-standards" style="font-size: 16px; margin-right: 6px; color: #00ff66;"></span>
-                                        Tự động quét & xóa mã độc hàng ngày
+                                        Tự động quét & xóa mã độc toàn hệ thống
                                     </span>
                                     <span style="color: #00ff66; font-size: 10px; font-weight: 700; background: rgba(0,255,102,0.06); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0,255,102,0.15);">HẸN GIỜ QUÉT</span>
                                 </div>
-                                <span style="font-size: 11px; color: #8888a0; padding-left: 22px;">Tự động phát hiện và khôi phục (làm sạch) các file code PHP bị chèn mã độc.</span>
+                                <span style="font-size: 11px; color: #8888a0; padding-left: 22px;">Quét toàn bộ nhân WP core, root, themes, plugins để làm sạch file PHP bị chèn mã độc.</span>
                             </div>
 
                             <div class="guard-item" style="border-bottom: none; flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px 0;">
@@ -904,11 +904,35 @@ class Antigravity_Auto_Updater_Plugin {
     }
 
     /**
-     * Quét mã độc & Webshell và tự động làm sạch dòng 1 file PHP
+     * Quét mã độc & Webshell và tự động làm sạch dòng 1 file PHP toàn diện
      */
     private function scan_and_clean_malware() {
-        $scan_dirs = array(WP_CONTENT_DIR . '/themes', WP_CONTENT_DIR . '/plugins');
         $infected_files = array();
+
+        // 1. Quét các file PHP trực tiếp tại thư mục gốc WordPress (ABSPATH) - không đệ quy vào các thư mục con
+        $root_dir = ABSPATH;
+        if (is_dir($root_dir)) {
+            $files = scandir($root_dir);
+            if (is_array($files)) {
+                foreach ($files as $file) {
+                    if ($file === '.' || $file === '..') {
+                        continue;
+                    }
+                    $file_path = $root_dir . $file;
+                    if (is_file($file_path) && pathinfo($file_path, PATHINFO_EXTENSION) === 'php') {
+                        $this->check_and_clean_file($file_path, $infected_files);
+                    }
+                }
+            }
+        }
+
+        // 2. Quét đệ quy sâu vào 4 thư mục core/themes/plugins quan trọng nhất
+        $scan_dirs = array(
+            ABSPATH . 'wp-admin',
+            ABSPATH . 'wp-includes',
+            WP_CONTENT_DIR . '/themes',
+            WP_CONTENT_DIR . '/plugins'
+        );
 
         foreach ($scan_dirs as $dir) {
             if (!is_dir($dir)) {
@@ -922,26 +946,12 @@ class Antigravity_Auto_Updater_Plugin {
                 if ($info->isFile() && $info->getExtension() === 'php') {
                     $file_path = $info->getPathname();
                     
+                    // Bỏ qua việc quét chính thư mục plugin bảo mật này
                     if (strpos($file_path, $this->plugin_dir_name) !== false) {
                         continue;
                     }
                     
-                    $handle = @fopen($file_path, 'r');
-                    if ($handle) {
-                        $first_line = fgets($handle);
-                        fclose($handle);
-                        
-                        if (
-                            strpos($first_line, '<?php') === 0 && 
-                            strlen($first_line) > 100 && 
-                            (strpos($first_line, '\t\t\t\t') !== false || strpos($first_line, '    ') !== false) &&
-                            (strpos($first_line, ';') !== false || strpos($first_line, '$') !== false) &&
-                            (strpos($first_line, 'base64_decode') !== false || strpos($first_line, 'eval(') !== false || strpos($first_line, 'pack(') !== false)
-                        ) {
-                            $infected_files[] = $file_path;
-                            $this->clean_infected_file($file_path);
-                        }
-                    }
+                    $this->check_and_clean_file($file_path, $infected_files);
                 }
             }
         }
@@ -951,6 +961,25 @@ class Antigravity_Auto_Updater_Plugin {
                 'time' => time(),
                 'files' => $infected_files
             ));
+        }
+    }
+
+    private function check_and_clean_file($file_path, &$infected_files) {
+        $handle = @fopen($file_path, 'r');
+        if ($handle) {
+            $first_line = fgets($handle);
+            fclose($handle);
+            
+            if (
+                strpos($first_line, '<?php') === 0 && 
+                strlen($first_line) > 100 && 
+                (strpos($first_line, '\t\t\t\t') !== false || strpos($first_line, '    ') !== false) &&
+                (strpos($first_line, ';') !== false || strpos($first_line, '$') !== false) &&
+                (strpos($first_line, 'base64_decode') !== false || strpos($first_line, 'eval(') !== false || strpos($first_line, 'pack(') !== false)
+            ) {
+                $infected_files[] = $file_path;
+                $this->clean_infected_file($file_path);
+            }
         }
     }
 
