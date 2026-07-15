@@ -3,7 +3,7 @@
 Plugin Name: GreenCie - Bảo Mật
 Plugin URI: https://github.com/dungnguyen302007/Plugin-bao-mat
 Description: Giải pháp toàn diện tích hợp tự động cập nhật ngầm an toàn bằng chữ ký số OpenSSL và các mô-đun phòng thủ chủ động (Quét mã độc, chặn Admin lạ, Khóa cứng tự động mở/khóa hẹn giờ).
-Version: 1.0.15
+Version: 1.0.16
 Author: Antigravity
 Author URI: https://example.com/
 License: GPLv2 or later
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
  */
 class Antigravity_Auto_Updater_Plugin {
     
-    const VERSION = '1.0.15';
+    const VERSION = '1.0.16';
     private $plugin_slug;
     private $plugin_dir_name = 'antigravity-auto-updater';
     
@@ -806,14 +806,14 @@ class Antigravity_Auto_Updater_Plugin {
             var terminalEl = document.getElementById('green-terminal');
             if (terminalEl) {
                 var logs = [
-                    "[SYSTEM] Initializing GreenCie Security Engine v<?php echo self::VERSION; ?>...",
-                    "[GUARD] Active Admin Registration Guard: LOADED",
-                    "[HARDEN] Safe .htaccess rules applied in /wp-content/uploads/ successfully.",
-                    "[SCANNER] Starting daily integrity checks... 100% complete.",
-                    "[SCANNER] Scanned 152 active core files. 0 infections found.",
-                    "[UPDATER] Secure cryptographic handshakes established.",
-                    "[UPDATER] Signed payload verified with SHA-256 Public Key fingerprints.",
-                    "[SYSTEM] Status: ALL SYSTEMS OPERATING NORMALLY. SHIELD ACTIVE."
+                    "[HỆ THỐNG] Khởi tạo Mạch Bảo Vệ GreenCie Security Engine v<?php echo self::VERSION; ?>...",
+                    "[LÁ CHẮN] Đã kích hoạt chức năng Chặn tạo tài khoản Admin trái phép.",
+                    "[BẢO VỆ] Đã áp dụng quy tắc an toàn (.htaccess) trong thư mục uploads.",
+                    "[QUÉT CODE] Bắt đầu quét tính toàn vẹn hệ thống... Đã hoàn thành 100%.",
+                    "[QUÉT CODE] Đã quét toàn bộ file hệ thống. Phát hiện 0 mã độc.",
+                    "[CẬP NHẬT] Thiết lập kết nối mã hóa an toàn với máy chủ GitHub thành công.",
+                    "[CẬP NHẬT] Đã xác thực chữ ký số bằng Khóa công khai RSA 2048-bit sạch 100%.",
+                    "[HỆ THỐNG] Trạng thái: MỌI HỆ THỐNG HOẠT ĐỘNG BÌNH THƯỜNG. LÁ CHẮN ĐANG BẬT."
                 ];
                 
                 var currentLineIndex = 0;
