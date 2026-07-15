@@ -3,7 +3,7 @@
 Plugin Name: GreenCie - Bảo Mật
 Plugin URI: https://github.com/dungnguyen302007/Plugin-bao-mat
 Description: Giải pháp toàn diện tích hợp tự động cập nhật ngầm an toàn bằng chữ ký số OpenSSL và các mô-đun phòng thủ chủ động (Quét mã độc, chặn Admin lạ, Khóa cứng tự động mở/khóa hẹn giờ).
-Version: 1.0.16
+Version: 1.0.17
 Author: Antigravity
 Author URI: https://example.com/
 License: GPLv2 or later
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
  */
 class Antigravity_Auto_Updater_Plugin {
     
-    const VERSION = '1.0.16';
+    const VERSION = '1.0.17';
     private $plugin_slug;
     private $plugin_dir_name = 'antigravity-auto-updater';
     
@@ -919,17 +919,22 @@ class Antigravity_Auto_Updater_Plugin {
                         continue;
                     }
                     $file_path = $root_dir . $file;
-                    if (is_file($file_path) && pathinfo($file_path, PATHINFO_EXTENSION) === 'php') {
+                    $file_ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                    $is_php_like = in_array($file_ext, array('php', 'php5', 'phtml', 'disabled', 'suspect'));
+                    $is_hidden_php = (strpos($file, '.') === 0 && ($file_ext === '' || in_array($file_ext, array('php', 'disabled'))));
+                    
+                    if (is_file($file_path) && ($is_php_like || $is_hidden_php)) {
                         $this->check_and_clean_file($file_path, $infected_files);
                     }
                 }
             }
         }
 
-        // 2. Quét đệ quy sâu vào 4 thư mục core/themes/plugins quan trọng nhất
+        // 2. Quét đệ quy sâu vào các thư mục quan trọng nhất chứa mã chạy
         $scan_dirs = array(
             ABSPATH . 'wp-admin',
             ABSPATH . 'wp-includes',
+            WP_CONTENT_DIR . '/mu-plugins',
             WP_CONTENT_DIR . '/themes',
             WP_CONTENT_DIR . '/plugins'
         );
@@ -943,15 +948,23 @@ class Antigravity_Auto_Updater_Plugin {
             $iterator = new RecursiveIteratorIterator($directory);
             
             foreach ($iterator as $info) {
-                if ($info->isFile() && $info->getExtension() === 'php') {
-                    $file_path = $info->getPathname();
+                if ($info->isFile()) {
+                    $filename = $info->getFilename();
+                    $file_ext = strtolower($info->getExtension());
                     
-                    // Bỏ qua việc quét chính thư mục plugin bảo mật này
-                    if (strpos($file_path, $this->plugin_dir_name) !== false) {
-                        continue;
+                    $is_php_like = in_array($file_ext, array('php', 'php5', 'phtml', 'disabled', 'suspect'));
+                    $is_hidden_php = (strpos($filename, '.') === 0 && ($file_ext === '' || in_array($file_ext, array('php', 'disabled'))));
+                    
+                    if ($is_php_like || $is_hidden_php) {
+                        $file_path = $info->getPathname();
+                        
+                        // Bỏ qua việc quét chính thư mục plugin bảo mật này
+                        if (strpos($file_path, $this->plugin_dir_name) !== false) {
+                            continue;
+                        }
+                        
+                        $this->check_and_clean_file($file_path, $infected_files);
                     }
-                    
-                    $this->check_and_clean_file($file_path, $infected_files);
                 }
             }
         }
@@ -978,7 +991,17 @@ class Antigravity_Auto_Updater_Plugin {
                 (strpos($first_line, 'base64_decode') !== false || strpos($first_line, 'eval(') !== false || strpos($first_line, 'pack(') !== false)
             ) {
                 $infected_files[] = $file_path;
-                $this->clean_infected_file($file_path);
+                
+                // Nếu là file ẩn (bắt đầu bằng dấu chấm) hoặc file có đuôi bất thường (.disabled, .suspect...)
+                // thì thực hiện XÓA BỎ hoàn toàn file đó khỏi host vì đây chắc chắn là backdoor.
+                $filename = basename($file_path);
+                $file_ext = strtolower(pathinfo($file_path, PATHINFO_EXTENSION));
+                if (strpos($filename, '.') === 0 || in_array($file_ext, array('disabled', 'suspect'))) {
+                    @unlink($file_path);
+                } else {
+                    // Nếu là file PHP chuẩn, khôi phục dòng 1 thành <?php
+                    $this->clean_infected_file($file_path);
+                }
             }
         }
     }
